@@ -1,0 +1,433 @@
+.register-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.left-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #fff;
+}
+
+.right-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 50%, #FFD1D1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo {
+  margin-bottom: 2rem;
+}
+
+.title-section {
+  margin-bottom: 2rem;
+}
+
+.title-section h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.title-section p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.875rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.form-group input.error {
+  border-color: #ef4444;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.password-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+.password-hint {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.8rem;
+}
+
+.error-alert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.submit-btn {
+  background: #1f2937;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #111827;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  text-align: center;
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider span {
+  background: white;
+  color: #9ca3af;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+}
+
+.google-btn {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+.google-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.login-link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.login-link a {
+  color: #ff6b6b;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.login-link a:hover {
+  color: #e55555;
+}
+
+/* Right panel illustration */
+.illustration {
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+}
+
+.cloud-1 {
+  width: 80px;
+  height: 40px;
+  top: 20px;
+  left: 50px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.cloud-2 {
+  width: 60px;
+  height: 30px;
+  top: 40px;
+  right: 30px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.cloud-3 {
+  width: 50px;
+  height: 25px;
+  top: 80px;
+  left: 20px;
+  animation: float 7s ease-in-out infinite;
+}
+
+.person {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.head {
+  width: 60px;
+  height: 60px;
+  background: #4FC3F7;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto 10px;
+}
+
+.head::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #333;
+  border-radius: 50%;
+  top: 20px;
+  left: 18px;
+}
+
+.head::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: #333;
+  border-radius: 2px;
+  top: 40px;
+  left: 20px;
+}
+
+.body {
+  width: 80px;
+  height: 100px;
+  background: #fff;
+  border-radius: 40px 40px 20px 20px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.clipboard {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 35px;
+  background: #f3f4f6;
+  border: 2px solid #333;
+  border-radius: 3px;
+}
+
+.clipboard::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  background: #333;
+}
+
+.clipboard::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  background: #333;
+}
+
+.medical-cross {
+  position: absolute;
+  top: 30px;
+  right: 80px;
+  width: 20px;
+  height: 20px;
+  background: #ff6b6b;
+  border-radius: 2px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.medical-cross::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 3px;
+  background: white;
+}
+
+.medical-cross::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 12px;
+  background: white;
+}
+
+.health-icon {
+  position: absolute;
+  bottom: 50px;
+  right: 40px;
+  width: 25px;
+  height: 25px;
+  background: #4FC3F7;
+  border-radius: 50%;
+  animation: bounce 3s ease-in-out infinite;
+}
+
+.health-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 3px;
+  background: white;
+}
+
+.health-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 15px;
+  background: white;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-container {
+    flex-direction: column;
+  }
+  
+  .right-panel {
+    display: none;
+  }
+  
+  .left-panel {
+    padding: 1rem;
+  }
+  
+  .register-form {
+    max-width: 100%;
+  }
+}

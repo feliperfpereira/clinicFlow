@@ -1,0 +1,6 @@
+backend/node_modules/.package-lock.json
+backend/node_modules/.bin/acorn
+backend/node_modules/
+backend/.env
+.mcp.json
+passkeys
