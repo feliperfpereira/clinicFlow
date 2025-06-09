@@ -7,139 +7,141 @@
   </div>
 
   <div class="content" *ngIf="!loading">
-    <!-- Recommendations Section -->
-    <section class="recommendations">
-      <h2>Recomendados para você</h2>
-      
-      <div class="recommendation-cards">
-        <div class="recommendation-card" (click)="navigateToPatients()">
-          <div class="card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
+    <!-- Top Section - Recommendations and Appointments -->
+    <div class="top-section">
+      <!-- Left - Recommendations Section -->
+      <section class="recommendations">
+        <h2>Recomendados para você</h2>
+        
+        <div class="recommendation-cards">
+          <div class="recommendation-card" (click)="navigateToPatients()">
+            <div class="card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3>Adicionar paciente</h3>
+              <p>Aqui você adiciona seus pacientes</p>
+            </div>
           </div>
-          <div class="card-content">
-            <h3>Adicionar paciente</h3>
-            <p>Aqui você adiciona seus pacientes</p>
+
+          <div class="recommendation-card" (click)="navigateToNewAppointment()">
+            <div class="card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3>Adicionar agendamento</h3>
+              <p>Atribua um horário para um paciente</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right - Next Appointments -->
+      <section class="appointments-section">
+        <div class="appointments-card">
+          <div class="appointments-header">
+            <h2>Próximos agendamentos</h2>
+            <button class="search-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
+                <path d="21 21L16.65 16.65" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="appointments-content">
+            <!-- With Data State -->
+            <div *ngIf="hasData() && nextAppointment" class="next-appointment">
+              <div class="appointment-avatar">
+                <span>{{nextAppointment.patients?.name?.charAt(0)?.toUpperCase() || 'P'}}</span>
+              </div>
+              <div class="appointment-details">
+                <h4>{{nextAppointment.patients?.name || 'Phoenix Baker'}}</h4>
+                <p>{{formatDate(nextAppointment.scheduled_date)}} às {{formatTime(nextAppointment.scheduled_time)}}</p>
+              </div>
+              <div class="appointment-actions">
+                <a routerLink="/appointments" class="view-all-link">Ver todos →</a>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!hasData() || !nextAppointment" class="empty-appointments">
+              <div class="empty-icon">
+                <svg width="40" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
+                <path d="21 21L16.65 16.65" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              </div>
+              <h3>Nenhum agendamento encontrado</h3>
+              <p>Comece criando o primeiro agendamento para organizar sua agenda</p>
+              <button class="add-appointment-btn" (click)="navigateToNewAppointment()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 12H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Adicionar agendamento
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Bottom Section - Blog Tips -->
+    <section class="tips-section">
+      <h2>Você pode gostar</h2>
+      
+      <div class="tip-cards">
+        <div class="tip-card">
+          <div class="tip-image">
+            <div class="illustration-placeholder">
+              <div class="illustration-shape shape-1"></div>
+              <div class="illustration-shape shape-2"></div>
+              <div class="illustration-shape shape-3"></div>
+              <div class="illustration-shape shape-4"></div>
+            </div>
+          </div>
+          <div class="tip-footer">
+            <div class="tip-meta">
+              <span class="tip-author">Bianca Silva</span>
+              <span class="tip-date">25/01/2025</span>
+              <span class="tip-badge">Novo</span>
+            </div>
+            <h3>Como criar seu primeiro agendamento</h3>
+            <p>Aprenda o passo a passo para adicionar seus compromissos e organizar sua agenda.</p>
+            <a href="#" class="tip-link">Ir para o blog →</a>
           </div>
         </div>
 
-        <div class="recommendation-card" (click)="navigateToNewAppointment()">
-          <div class="card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="1.5"/>
-              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"/>
-              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"/>
-              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
+        <div class="tip-card">
+          <div class="tip-image alt">
+            <div class="illustration-placeholder alt">
+              <div class="illustration-shape shape-5"></div>
+              <div class="illustration-shape shape-6"></div>
+              <div class="illustration-shape shape-7"></div>
+            </div>
           </div>
-          <div class="card-content">
-            <h3>Adicionar agendamento</h3>
-            <p>Atribua um horário para um paciente</p>
+          <div class="tip-footer">
+            <div class="tip-meta">
+              <span class="tip-author">Bianca Silva</span>
+              <span class="tip-date">25/01/2025</span>
+              <span class="tip-badge">Novo</span>
+            </div>
+            <h3>Dicas para gerenciar sua agenda</h3>
+            <p>Descubra como otimizar seus agendamentos e economizar tempo no dia a dia.</p>
+            <a href="#" class="tip-link">Ir para o blog →</a>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Main Content Grid -->
-    <div class="main-grid">
-      <!-- Left Column - Tips -->
-      <div class="tips-section">
-        <h2>Você pode gostar</h2>
-        
-        <div class="tip-cards">
-          <div class="tip-card">
-            <div class="tip-image">
-              <div class="illustration-placeholder">
-                <div class="illustration-shape shape-1"></div>
-                <div class="illustration-shape shape-2"></div>
-                <div class="illustration-shape shape-3"></div>
-                <div class="illustration-shape shape-4"></div>
-              </div>
-            </div>
-            <div class="tip-footer">
-              <div class="tip-meta">
-                <span class="tip-author">Bianca Silva</span>
-                <span class="tip-date">25/01/2025</span>
-                <span class="tip-badge">Novo</span>
-              </div>
-              <h3>Como criar seu primeiro agendamento</h3>
-              <p>Aprenda o passo a passo para adicionar seus compromissos e organizar sua agenda.</p>
-              <a href="#" class="tip-link">Ir para o blog →</a>
-            </div>
-          </div>
-
-          <div class="tip-card">
-            <div class="tip-image alt">
-              <div class="illustration-placeholder alt">
-                <div class="illustration-shape shape-5"></div>
-                <div class="illustration-shape shape-6"></div>
-                <div class="illustration-shape shape-7"></div>
-              </div>
-            </div>
-            <div class="tip-footer">
-              <div class="tip-meta">
-                <span class="tip-author">Bianca Silva</span>
-                <span class="tip-date">25/01/2025</span>
-                <span class="tip-badge">Novo</span>
-              </div>
-              <h3>Dicas para gerenciar sua agenda</h3>
-              <p>Descubra como otimizar seus agendamentos e economizar tempo no dia a dia.</p>
-              <a href="#" class="tip-link">Ir para o blog →</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column - Next Appointments -->
-      <div class="appointments-section">
-        <div class="appointments-header">
-          <h2>Próximos agendamentos</h2>
-          <button class="search-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
-              <path d="21 21L16.65 16.65" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="appointments-content">
-          <!-- With Data State -->
-          <div *ngIf="hasData() && nextAppointment" class="next-appointment">
-            <div class="appointment-avatar">
-              <span>{{nextAppointment.patients?.name?.charAt(0)?.toUpperCase() || 'P'}}</span>
-            </div>
-            <div class="appointment-details">
-              <h4>{{nextAppointment.patients?.name || 'Phoenix Baker'}}</h4>
-              <p>{{formatDate(nextAppointment.scheduled_date)}} às {{formatTime(nextAppointment.scheduled_time)}}</p>
-            </div>
-            <div class="appointment-actions">
-              <a routerLink="/appointments" class="view-all-link">Ver todos →</a>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div *ngIf="!hasData() || !nextAppointment" class="empty-appointments">
-            <div class="empty-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
-                <path d="21 21L16.65 16.65" stroke="currentColor" stroke-width="1.5"/>
-              </svg>
-            </div>
-            <h3>Nenhum agendamento encontrado</h3>
-            <p>Comece criando o primeiro agendamento para organizar sua agenda</p>
-            <button class="add-appointment-btn" (click)="navigateToNewAppointment()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M5 12H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Adicionar agendamento
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Loading State -->

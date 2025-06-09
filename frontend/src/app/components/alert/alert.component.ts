@@ -10,9 +10,12 @@ import { AlertService, Alert } from '../../services/alert.service';
   template: `
     <div class="alert-container">
       <div 
-        *ngFor="let alert of alerts" 
+        *ngFor="let alert of alerts; trackBy: trackByAlertId" 
         class="alert" 
         [ngClass]="alert.type"
+        [attr.data-alert-id]="alert.id"
+        (mouseenter)="pauseTimer(alert.id)"
+        (mouseleave)="resumeTimer(alert.id)"
 >
         <div class="alert-content">
           <div class="alert-icon">
@@ -37,6 +40,16 @@ import { AlertService, Alert } from '../../services/alert.service';
             <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
+        
+        <!-- Barra de progresso -->
+        <div *ngIf="alert.autoRemove" class="progress-bar-container">
+          <div 
+            class="progress-bar" 
+            [ngClass]="alert.type"
+            [style.animation-duration.ms]="alert.duration"
+            [style.animation-play-state]="getTimerState(alert.id)"
+          ></div>
+        </div>
       </div>
     </div>
   `,
@@ -45,13 +58,33 @@ import { AlertService, Alert } from '../../services/alert.service';
 export class AlertComponent implements OnInit, OnDestroy {
   alerts: Alert[] = [];
   private subscription: Subscription = new Subscription();
+  private pausedTimers: Set<string> = new Set();
 
   constructor(private alertService: AlertService) {}
 
   ngOnInit(): void {
-    this.subscription = this.alertService.alerts$.subscribe(alert => {
-      this.alerts.push(alert);
-    });
+    this.subscription.add(
+      this.alertService.alerts$.subscribe(alert => {
+        this.alerts.push(alert);
+      })
+    );
+    
+    this.subscription.add(
+      this.alertService.remove$.subscribe(alertId => {
+        // Adiciona classe de saída antes de remover
+        const alertElement = document.querySelector(`[data-alert-id="${alertId}"]`);
+        if (alertElement) {
+          alertElement.classList.add('alert-exit');
+          setTimeout(() => {
+            this.alerts = this.alerts.filter(alert => alert.id !== alertId);
+            this.pausedTimers.delete(alertId);
+          }, 300); // Tempo da animação de saída
+        } else {
+          this.alerts = this.alerts.filter(alert => alert.id !== alertId);
+          this.pausedTimers.delete(alertId);
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -59,7 +92,35 @@ export class AlertComponent implements OnInit, OnDestroy {
   }
 
   removeAlert(id: string): void {
-    this.alerts = this.alerts.filter(alert => alert.id !== id);
-    this.alertService.remove(id);
+    // Adiciona classe de saída antes de remover
+    const alertElement = document.querySelector(`[data-alert-id="${id}"]`);
+    if (alertElement) {
+      alertElement.classList.add('alert-exit');
+      setTimeout(() => {
+        this.alerts = this.alerts.filter(alert => alert.id !== id);
+        this.alertService.remove(id);
+        this.pausedTimers.delete(id);
+      }, 300);
+    } else {
+      this.alerts = this.alerts.filter(alert => alert.id !== id);
+      this.alertService.remove(id);
+      this.pausedTimers.delete(id);
+    }
+  }
+
+  pauseTimer(alertId: string): void {
+    this.pausedTimers.add(alertId);
+  }
+
+  resumeTimer(alertId: string): void {
+    this.pausedTimers.delete(alertId);
+  }
+
+  getTimerState(alertId: string): string {
+    return this.pausedTimers.has(alertId) ? 'paused' : 'running';
+  }
+
+  trackByAlertId(index: number, alert: Alert): string {
+    return alert.id;
   }
 }

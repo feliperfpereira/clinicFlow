@@ -28,19 +28,39 @@
   gap: 32px;
 }
 
-/* Recommendations Section */
+/* Top Section - Grid for Recommendations and Appointments */
+.top-section {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Align titles on the same baseline */
+.recommendations {
+  display: flex;
+  flex-direction: column;
+}
+
+.appointments-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Unified title styling for recommendations */
 .recommendations h2 {
   font-size: 18px;
   font-weight: 500;
   color: #374151;
   margin: 0 0 16px 0;
+  align-self: flex-start;
 }
 
 .recommendation-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  max-width: 600px;
+  max-width: 680px;
 }
 
 .recommendation-card {
@@ -85,12 +105,7 @@
   line-height: 1.4;
 }
 
-/* Main Grid */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 32px;
-}
+/* Tips Section - Now takes full width */
 
 /* Tips Section */
 .tips-section h2 {
@@ -104,6 +119,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  max-width: 680px;
 }
 
 .tip-card {
@@ -257,6 +273,11 @@
 
 /* Appointments Section */
 .appointments-section {
+  width: 320px;
+  max-width: 320px;
+}
+
+.appointments-card {
   background: white;
   border: 1px solid #f3f4f6;
   border-radius: 8px;
@@ -420,6 +441,17 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .top-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .appointments-section {
+    max-width: none;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 24px;
@@ -427,11 +459,6 @@
   
   .recommendation-cards {
     grid-template-columns: 1fr;
-  }
-  
-  .main-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
   }
   
   .tip-cards {

@@ -7,6 +7,8 @@ export interface Alert {
   title: string;
   message: string;
   timestamp: Date;
+  duration: number;
+  autoRemove?: boolean;
 }
 
 @Injectable({
@@ -14,7 +16,9 @@ export interface Alert {
 })
 export class AlertService {
   private alertSubject = new Subject<Alert>();
+  private removeSubject = new Subject<string>();
   public alerts$ = this.alertSubject.asObservable();
+  public remove$ = this.removeSubject.asObservable();
   private alerts: Alert[] = [];
 
   constructor() {}
@@ -29,7 +33,9 @@ export class AlertService {
       type: 'success',
       title,
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
+      duration: 5000,
+      autoRemove: true
     };
     
     this.alerts.push(alert);
@@ -47,20 +53,23 @@ export class AlertService {
       type: 'error',
       title,
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
+      duration: 5000,
+      autoRemove: true
     };
     
     this.alerts.push(alert);
     this.alertSubject.next(alert);
     
-    // Auto remove after 7 seconds for errors
+    // Auto remove after 5 seconds (mudei para 5 segundos também)
     setTimeout(() => {
       this.remove(alert.id);
-    }, 7000);
+    }, 5000);
   }
 
   remove(id: string): void {
     this.alerts = this.alerts.filter(alert => alert.id !== id);
+    this.removeSubject.next(id);
   }
 
   clear(): void {

@@ -10,7 +10,7 @@
 .alert {
   background: white;
   border-radius: 16px;
-  padding: 20px;
+  padding: 20px 20px 24px 20px; /* Aumentei o padding bottom para acomodar a barra */
   margin-bottom: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
@@ -19,6 +19,12 @@
   justify-content: space-between;
   animation: slideIn 0.3s ease-out;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.alert:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .alert.success {
@@ -88,6 +94,46 @@
   height: 16px;
 }
 
+/* Barra de progresso */
+.progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation-name: progressShrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.progress-bar.success {
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.progress-bar.error {
+  background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes progressShrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -96,6 +142,25 @@
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+.alert-exit {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    max-height: 200px;
+    margin-bottom: 12px;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
   }
 }
 
