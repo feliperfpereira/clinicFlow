@@ -1,0 +1,389 @@
+<div class="appointments-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="back-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Lista de agendamentos</h1>
+        <p>Veja, edite ou exclua os compromissos agendados e mantenha sua agenda sempre organizada.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section-header">
+      <div class="section-title">
+        <span>Lista de agendamentos</span>
+        <span class="count">{{totalAppointments}} agendamentos</span>
+      </div>
+      <button class="add-button" (click)="openAddModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Adicionar
+      </button>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-container">
+        <input 
+          type="text" 
+          placeholder="Pesquisar" 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+          class="search-input">
+      </div>
+      <button class="filter-button" (click)="showFilters = !showFilters">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Filtros
+      </button>
+    </div>
+
+    <div class="expanded-filters" *ngIf="showFilters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Data</label>
+          <input 
+            type="date" 
+            [(ngModel)]="dateFilter"
+            (change)="onFilterChange()"
+            class="filter-input">
+        </div>
+        <div class="filter-group">
+          <label>Tipo</label>
+          <select 
+            [(ngModel)]="typeFilter"
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option value="">Todos os tipos</option>
+            <option *ngFor="let type of appointmentTypes" [value]="type.value">{{type.label}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select 
+            [(ngModel)]="statusFilter"
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option value="">Todos os status</option>
+            <option *ngFor="let status of appointmentStatuses" [value]="status.value">{{status.label}}</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="clear-filters" (click)="clearFilters()">Limpar filtros</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container" *ngIf="!loading">
+      <table class="appointments-table" *ngIf="appointments.length > 0">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Agendado para</th>
+            <th>Tipo</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let appointment of appointments">
+            <td>
+              <div class="patient-info">
+                <div class="patient-avatar">
+                  <img [src]="getPatientPhoto(appointment.patients)" [alt]="appointment.patients?.name" class="avatar-image">
+                </div>
+                <div class="patient-details">
+                  <div class="patient-name">{{appointment.patients?.name || 'N/A'}}</div>
+                  <div class="patient-contact">{{appointment.patients?.phone || 'N/A'}}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{formatDateTime(appointment.scheduled_date, appointment.scheduled_time)}}</td>
+            <td>{{getTypeLabel(appointment.type)}}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
+                {{getStatusLabel(appointment.status)}}
+              </span>
+            </td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="19" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="5" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+                <div class="actions-dropdown">
+                  <button (click)="openDetailsModal(appointment)">Ver detalhes</button>
+                  <button (click)="openEditModal(appointment)">Editar agendamento</button>
+                  <div class="status-submenu">
+                    <span>Definir status →</span>
+                    <div class="submenu">
+                      <button (click)="updateStatus(appointment, 'pago')" class="status-option paid">Pago</button>
+                      <button (click)="updateStatus(appointment, 'pendente')" class="status-option pending">Pendente</button>
+                      <button (click)="updateStatus(appointment, 'cancelado')" class="status-option cancelled">Cancelado</button>
+                    </div>
+                  </div>
+                  <button>Lembrar paciente</button>
+                  <button (click)="openDeleteModal(appointment)" class="danger">Deletar agendamento</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="appointments.length === 0">
+        <img src="/assets/images/empty-appointments.png" alt="Nenhum agendamento encontrado" class="empty-image">
+        <h3>Nenhum agendamento encontrado</h3>
+        <p>Comece criando o primeiro agendamento para organizar sua agenda</p>
+        <button class="add-button" (click)="openAddModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Adicionar agendamento
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Carregando agendamentos...</p>
+    </div>
+
+    <div class="error" *ngIf="error">
+      <p>{{error}}</p>
+      <button (click)="loadAppointments()">Tentar novamente</button>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        (click)="onPageChange(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="pagination-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      
+      <button 
+        *ngFor="let page of getPaginationPages()" 
+        (click)="onPageChange(page)"
+        [class.active]="page === currentPage"
+        class="pagination-number">
+        {{page}}
+      </button>
+      
+      <span *ngIf="totalPages > 5 && currentPage < totalPages - 2">...</span>
+      
+      <button 
+        *ngIf="totalPages > 5 && currentPage < totalPages - 2"
+        (click)="onPageChange(totalPages)"
+        class="pagination-number">
+        {{totalPages}}
+      </button>
+      
+      <button 
+        (click)="onPageChange(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Appointment Modal -->
+<div class="modal-overlay" *ngIf="showAddModal || showEditModal" (click)="closeModals()">
+  <div class="modal large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{showEditModal ? 'Editar agendamento' : 'Adicionar agendamento'}}</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="patient">Selecione um paciente *</label>
+        <select 
+          id="patient" 
+          [(ngModel)]="currentAppointment.patient_id" 
+          class="form-select">
+          <option value="">Selecione um paciente</option>
+          <option *ngFor="let patient of patients" [value]="patient.id">{{patient.name}}</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date">Data *</label>
+          <input 
+            type="date" 
+            id="date" 
+            [(ngModel)]="currentAppointment.scheduled_date" 
+            class="form-input">
+        </div>
+        
+        <div class="form-group">
+          <label for="time">Horário *</label>
+          <input 
+            type="time" 
+            id="time" 
+            [(ngModel)]="currentAppointment.scheduled_time" 
+            class="form-input">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="type">Tipo *</label>
+          <select 
+            id="type" 
+            [(ngModel)]="currentAppointment.type" 
+            class="form-select">
+            <option value="">Selecione o tipo</option>
+            <option *ngFor="let type of appointmentTypes" [value]="type.value">{{type.label}}</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select 
+            id="status" 
+            [(ngModel)]="currentAppointment.status" 
+            class="form-select">
+            <option *ngFor="let status of appointmentStatuses" [value]="status.value">{{status.label}}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="observations">Observações</label>
+        <textarea 
+          id="observations" 
+          [(ngModel)]="currentAppointment.observations" 
+          placeholder="Digite observações sobre o agendamento (opcional)"
+          rows="3"
+          class="form-textarea"></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Cancelar</button>
+      <button class="save-button" (click)="saveAppointment()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeModals()">
+  <div class="modal large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalhes do agendamento</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="details-section">
+        <h3>Informações do agendamento</h3>
+        <div class="detail-row">
+          <span class="detail-label">Data:</span>
+          <span class="detail-value">{{formatDate(appointmentDetails?.scheduled_date || '')}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Horário:</span>
+          <span class="detail-value">{{formatTime(appointmentDetails?.scheduled_time || '')}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tipo:</span>
+          <span class="detail-value">{{getTypeLabel(appointmentDetails?.type || '')}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="status-badge" [ngClass]="getStatusClass(appointmentDetails?.status || '')">
+            {{getStatusLabel(appointmentDetails?.status || '')}}
+          </span>
+        </div>
+      </div>
+      
+      <div class="details-section">
+        <h3>Informações do paciente</h3>
+        <div class="detail-row">
+          <span class="detail-label">Nome:</span>
+          <span class="detail-value">{{appointmentDetails?.patients?.name || 'N/A'}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">E-mail:</span>
+          <span class="detail-value">{{appointmentDetails?.patients?.email || 'N/A'}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Telefone:</span>
+          <span class="detail-value">{{appointmentDetails?.patients?.phone || 'N/A'}}</span>
+        </div>
+      </div>
+      
+      <div class="details-section" *ngIf="appointmentDetails?.observations">
+        <h3>Observações</h3>
+        <p class="observations-text">{{appointmentDetails?.observations}}</p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Fechar</button>
+      <button class="reminder-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 8A6 6 0 0 0 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M13.73 21A2 2 0 0 1 10.27 21" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Enviar lembrete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModals()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Deletar agendamento</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Tem certeza que deseja deletar o agendamento de <strong>{{appointmentToDelete?.patients?.name}}</strong>?</p>
+      <p class="appointment-info">{{formatDateTime(appointmentToDelete?.scheduled_date || '', appointmentToDelete?.scheduled_time || '')}}</p>
+      <p class="warning">Esta ação não pode ser desfeita.</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Cancelar</button>
+      <button class="delete-button" (click)="deleteAppointment()">Deletar</button>
+    </div>
+  </div>
+</div>

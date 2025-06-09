@@ -1,0 +1,268 @@
+<div class="patients-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="back-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Lista de pacientes</h1>
+        <p>Visualize, edite ou exclua os pacientes cadastrados de forma rápida e organizada</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section-header">
+      <div class="section-title">
+        <span>Lista de pacientes</span>
+        <span class="count">{{totalPatients}} pacientes</span>
+      </div>
+      <button class="add-button" (click)="openAddModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Adicionar
+      </button>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-container">
+        <input 
+          type="text" 
+          placeholder="Pesquisar" 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+          class="search-input">
+      </div>
+      <button class="filter-button" (click)="showFilters = !showFilters">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Filtros
+      </button>
+    </div>
+
+    <!-- Expanded Filters -->
+    <div class="expanded-filters" *ngIf="showFilters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Nome</label>
+          <input type="text" class="filter-input" placeholder="Filtrar por nome">
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select class="filter-select">
+            <option value="">Todos</option>
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Data cadastro</label>
+          <input type="date" class="filter-input">
+        </div>
+        <div class="filter-actions">
+          <button class="clear-filters">Limpar filtros</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container" *ngIf="!loading">
+      <table class="patients-table" *ngIf="patients.length > 0">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Telefone</th>
+            <th>Data de cadastro</th>
+            <th>Idade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let patient of patients">
+            <td>
+              <div class="patient-info">
+                <div class="patient-avatar">
+                  <img [src]="getPatientPhoto(patient)" [alt]="patient.name" class="avatar-image">
+                </div>
+                <div class="patient-details">
+                  <div class="patient-name">{{patient.name}}</div>
+                  <div class="patient-email">{{patient.email}}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{patient.phone}}</td>
+            <td>{{formatDate(patient.created_at)}}</td>
+            <td>{{patient.birth_date ? calculateAge(patient.birth_date) + ' anos' : '-'}}</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="19" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="5" cy="12" r="1" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+                <div class="actions-dropdown">
+                  <button (click)="openEditModal(patient)">Editar paciente</button>
+                  <button>Novo agendamento</button>
+                  <button (click)="openDeleteModal(patient)" class="danger">Deletar paciente</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="patients.length === 0">
+        <img src="/assets/images/empty-patients.png" alt="Nenhum paciente encontrado" class="empty-image">
+        <h3>Nenhum paciente encontrado</h3>
+        <p>Comece adicionando o primeiro paciente para organizar sua agenda</p>
+        <button class="add-button" (click)="openAddModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Adicionar paciente
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Carregando pacientes...</p>
+    </div>
+
+    <div class="error" *ngIf="error">
+      <p>{{error}}</p>
+      <button (click)="loadPatients()">Tentar novamente</button>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        (click)="onPageChange(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="pagination-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      
+      <button 
+        *ngFor="let page of getPaginationPages()" 
+        (click)="onPageChange(page)"
+        [class.active]="page === currentPage"
+        class="pagination-number">
+        {{page}}
+      </button>
+      
+      <span *ngIf="totalPages > 5 && currentPage < totalPages - 2">...</span>
+      
+      <button 
+        *ngIf="totalPages > 5 && currentPage < totalPages - 2"
+        (click)="onPageChange(totalPages)"
+        class="pagination-number">
+        {{totalPages}}
+      </button>
+      
+      <button 
+        (click)="onPageChange(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Patient Modal -->
+<div class="modal-overlay" *ngIf="showAddModal || showEditModal" (click)="closeModals()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{showEditModal ? 'Editar paciente' : 'Adicionar paciente'}}</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="name">Nome completo *</label>
+        <input 
+          type="text" 
+          id="name" 
+          [(ngModel)]="currentPatient.name" 
+          placeholder="Digite o nome completo"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="email">E-mail *</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="currentPatient.email" 
+          placeholder="Digite o e-mail"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Telefone *</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          [(ngModel)]="currentPatient.phone" 
+          placeholder="(11) 99999-9999"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="birth_date">Data de nascimento</label>
+        <input 
+          type="date" 
+          id="birth_date" 
+          [(ngModel)]="currentPatient.birth_date" 
+          class="form-input">
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Cancelar</button>
+      <button class="save-button" (click)="savePatient()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModals()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Deletar paciente</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Tem certeza que deseja deletar o paciente <strong>{{patientToDelete?.name}}</strong>?</p>
+      <p class="warning">Esta ação não pode ser desfeita.</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Cancelar</button>
+      <button class="delete-button" (click)="deletePatient()">Deletar</button>
+    </div>
+  </div>
+</div>
