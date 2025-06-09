@@ -39,6 +39,7 @@
               id="password"
               formControlName="password"
               placeholder="••••••••"
+              style="width: 100%"
               [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
             />
             <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">

@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:3000/api'
+  apiUrl: 'https://api-aupnirpxca-uc.a.run.app/api',
+  frontendUrl: 'https://clinicflow-c5d58.web.app/'
 };
