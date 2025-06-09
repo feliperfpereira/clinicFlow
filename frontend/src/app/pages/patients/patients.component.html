@@ -109,7 +109,7 @@
                 </button>
                 <div class="actions-dropdown">
                   <button (click)="openEditModal(patient)">Editar paciente</button>
-                  <button>Novo agendamento</button>
+                  <button (click)="openAppointmentModal(patient)">Novo agendamento</button>
                   <button (click)="openDeleteModal(patient)" class="danger">Deletar paciente</button>
                 </div>
               </div>
@@ -196,32 +196,12 @@
     
     <div class="modal-body">
       <div class="form-group">
-        <label for="name">Nome completo *</label>
+        <label for="name">Nome completo</label>
         <input 
           type="text" 
           id="name" 
           [(ngModel)]="currentPatient.name" 
-          placeholder="Digite o nome completo"
-          class="form-input">
-      </div>
-      
-      <div class="form-group">
-        <label for="email">E-mail *</label>
-        <input 
-          type="email" 
-          id="email" 
-          [(ngModel)]="currentPatient.email" 
-          placeholder="Digite o e-mail"
-          class="form-input">
-      </div>
-      
-      <div class="form-group">
-        <label for="phone">Telefone *</label>
-        <input 
-          type="tel" 
-          id="phone" 
-          [(ngModel)]="currentPatient.phone" 
-          placeholder="(11) 99999-9999"
+          placeholder="Ex.: João da Silva"
           class="form-input">
       </div>
       
@@ -231,7 +211,48 @@
           type="date" 
           id="birth_date" 
           [(ngModel)]="currentPatient.birth_date" 
+          placeholder="DD/MM/AAAA"
           class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Telefone</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          [(ngModel)]="currentPatient.phone" 
+          placeholder="Ex.: (11) 91234-5678"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email (opcional)</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="currentPatient.email" 
+          placeholder="Ex.: joao.silva@email.com"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="address">Endereço (opcional)</label>
+        <input 
+          type="text" 
+          id="address" 
+          [(ngModel)]="currentPatient.address" 
+          placeholder="Ex.: Rua das Flores, 123, São Paulo - SP"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="observations">Observações adicionais (opcional)</label>
+        <textarea 
+          id="observations" 
+          [(ngModel)]="currentPatient.observations" 
+          placeholder="Ex.: Histórico médico, alergias ou outras informações relevantes"
+          rows="3"
+          class="form-textarea"></textarea>
       </div>
     </div>
     
@@ -263,6 +284,91 @@
     <div class="modal-footer">
       <button class="cancel-button" (click)="closeModals()">Cancelar</button>
       <button class="delete-button" (click)="deletePatient()">Deletar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal-overlay" *ngIf="showAppointmentModal" (click)="closeModals()">
+  <div class="modal large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Adicionar agendamento</h2>
+      <button class="close-button" (click)="closeModals()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="patient">Selecione um paciente</label>
+        <select 
+          id="patient" 
+          [(ngModel)]="currentAppointment.patient_id" 
+          class="form-select"
+          disabled>
+          <option [value]="selectedPatientForAppointment?.id">{{selectedPatientForAppointment?.name}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="date">Data do agendamento</label>
+        <input 
+          type="date" 
+          id="date" 
+          [(ngModel)]="currentAppointment.scheduled_date" 
+          placeholder="DD/MM/AAAA"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="time">Horário do agendamento</label>
+        <input 
+          type="time" 
+          id="time" 
+          [(ngModel)]="currentAppointment.scheduled_time" 
+          placeholder="Ex.: 14:30"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="type">Tipo de consulta</label>
+        <select 
+          id="type" 
+          [(ngModel)]="currentAppointment.type" 
+          class="form-select">
+          <option value="">Selecione o tipo. Ex.: Consulta, acolhimento</option>
+          <option *ngFor="let type of appointmentTypes" [value]="type.value">{{type.label}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="status">Status do agendamento</label>
+        <select 
+          id="status" 
+          [(ngModel)]="currentAppointment.status" 
+          class="form-select">
+          <option value="">Selecione o status</option>
+          <option *ngFor="let status of appointmentStatuses" [value]="status.value">{{status.label}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="observations">Observações adicionais (opcional)</label>
+        <textarea 
+          id="observations" 
+          [(ngModel)]="currentAppointment.observations" 
+          placeholder="Ex.: Paciente preferiu atendimento remoto"
+          rows="3"
+          class="form-textarea"></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-button" (click)="closeModals()">Cancelar</button>
+      <button class="save-button" (click)="saveAppointment()">Salvar agendamento</button>
     </div>
   </div>
 </div>

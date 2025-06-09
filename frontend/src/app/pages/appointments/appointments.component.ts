@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 
 interface Patient {
   id: string;
@@ -82,7 +83,10 @@ export class AppointmentsComponent implements OnInit {
     { value: 'cancelado', label: 'Cancelado' }
   ];
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private alertService: AlertService
+  ) {}
 
   ngOnInit() {
     this.loadAppointments();
@@ -190,7 +194,7 @@ export class AppointmentsComponent implements OnInit {
   saveAppointment() {
     if (!this.currentAppointment.patient_id || !this.currentAppointment.scheduled_date || 
         !this.currentAppointment.scheduled_time || !this.currentAppointment.type) {
-      alert('Por favor, preencha todos os campos obrigatórios');
+      this.alertService.validationError();
       return;
     }
 
@@ -199,9 +203,10 @@ export class AppointmentsComponent implements OnInit {
         next: () => {
           this.loadAppointments();
           this.closeModals();
+          this.alertService.appointmentUpdated();
         },
         error: (error) => {
-          alert('Erro ao atualizar agendamento');
+          this.alertService.appointmentError();
           console.error('Error updating appointment:', error);
         }
       });
@@ -210,9 +215,10 @@ export class AppointmentsComponent implements OnInit {
         next: () => {
           this.loadAppointments();
           this.closeModals();
+          this.alertService.appointmentCreated();
         },
         error: (error) => {
-          alert('Erro ao criar agendamento');
+          this.alertService.appointmentError();
           console.error('Error creating appointment:', error);
         }
       });
@@ -226,9 +232,10 @@ export class AppointmentsComponent implements OnInit {
       next: () => {
         this.loadAppointments();
         this.closeModals();
+        this.alertService.appointmentDeleted();
       },
       error: (error) => {
-        alert('Erro ao deletar agendamento');
+        this.alertService.appointmentError();
         console.error('Error deleting appointment:', error);
       }
     });
@@ -239,9 +246,10 @@ export class AppointmentsComponent implements OnInit {
     this.apiService.updateAppointment(appointment.id, updatedAppointment).subscribe({
       next: () => {
         this.loadAppointments();
+        this.alertService.appointmentStatusUpdated();
       },
       error: (error) => {
-        alert('Erro ao atualizar status');
+        this.alertService.appointmentError();
         console.error('Error updating status:', error);
       }
     });

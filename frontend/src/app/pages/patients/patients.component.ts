@@ -3,13 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 
 interface Patient {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
   birth_date?: string;
+  address?: string;
+  observations?: string;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +25,16 @@ interface PatientResponse {
     total: number;
     pages: number;
   };
+}
+
+interface Appointment {
+  id?: string;
+  patient_id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  type: string;
+  status: string;
+  observations?: string;
 }
 
 @Component({
@@ -49,12 +62,33 @@ export class PatientsComponent implements OnInit {
   showAddModal = false;
   showEditModal = false;
   showDeleteModal = false;
+  showAppointmentModal = false;
   
   // Current patient for operations
   currentPatient: Partial<Patient> = {};
   patientToDelete: Patient | null = null;
+  
+  // Appointment-related properties
+  selectedPatientForAppointment: Patient | null = null;
+  currentAppointment: Partial<Appointment> = {};
+  
+  // Appointment types and statuses
+  appointmentTypes = [
+    { value: 'consulta', label: 'Consulta' },
+    { value: 'acolhimento', label: 'Acolhimento' },
+    { value: 'retorno', label: 'Retorno' }
+  ];
+  
+  appointmentStatuses = [
+    { value: 'pendente', label: 'Pendente' },
+    { value: 'pago', label: 'Pago' },
+    { value: 'cancelado', label: 'Cancelado' }
+  ];
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private alertService: AlertService
+  ) {}
 
   ngOnInit() {
     this.loadPatients();
@@ -97,12 +131,23 @@ export class PatientsComponent implements OnInit {
   }
 
   openAddModal() {
-    this.currentPatient = {};
+    this.currentPatient = {
+      name: '',
+      email: '',
+      phone: '',
+      birth_date: '',
+      address: '',
+      observations: ''
+    };
     this.showAddModal = true;
   }
 
   openEditModal(patient: Patient) {
-    this.currentPatient = { ...patient };
+    this.currentPatient = { 
+      ...patient,
+      address: patient.address || '',
+      observations: patient.observations || ''
+    };
     this.showEditModal = true;
   }
 
@@ -115,35 +160,40 @@ export class PatientsComponent implements OnInit {
     this.showAddModal = false;
     this.showEditModal = false;
     this.showDeleteModal = false;
+    this.showAppointmentModal = false;
     this.currentPatient = {};
     this.patientToDelete = null;
+    this.selectedPatientForAppointment = null;
+    this.currentAppointment = {};
   }
 
   savePatient() {
-    if (!this.currentPatient.name || !this.currentPatient.email || !this.currentPatient.phone) {
-      alert('Por favor, preencha todos os campos obrigatórios');
+    if (!this.currentPatient.name || !this.currentPatient.phone) {
+      this.alertService.validationError();
       return;
     }
 
     if (this.showEditModal && this.currentPatient.id) {
       this.apiService.updatePatient(this.currentPatient.id, this.currentPatient).subscribe({
-        next: () => {
+        next: (response) => {
           this.loadPatients();
           this.closeModals();
+          this.alertService.patientUpdated();
         },
         error: (error) => {
-          alert('Erro ao atualizar paciente');
+          this.alertService.patientError();
           console.error('Error updating patient:', error);
         }
       });
     } else {
       this.apiService.createPatient(this.currentPatient).subscribe({
-        next: () => {
+        next: (response) => {
           this.loadPatients();
           this.closeModals();
+          this.alertService.patientCreated();
         },
         error: (error) => {
-          alert('Erro ao criar paciente');
+          this.alertService.patientError();
           console.error('Error creating patient:', error);
         }
       });
@@ -157,9 +207,10 @@ export class PatientsComponent implements OnInit {
       next: () => {
         this.loadPatients();
         this.closeModals();
+        this.alertService.patientDeleted();
       },
       error: (error) => {
-        alert('Erro ao deletar paciente');
+        this.alertService.patientError();
         console.error('Error deleting patient:', error);
       }
     });
@@ -198,6 +249,34 @@ export class PatientsComponent implements OnInit {
     }
     
     return pages;
+  }
+
+  openAppointmentModal(patient: Patient) {
+    this.selectedPatientForAppointment = patient;
+    this.currentAppointment = {
+      patient_id: patient.id,
+      status: 'pendente' // Default status
+    };
+    this.showAppointmentModal = true;
+  }
+
+  saveAppointment() {
+    if (!this.currentAppointment.scheduled_date || !this.currentAppointment.scheduled_time || 
+        !this.currentAppointment.type || !this.currentAppointment.status) {
+      this.alertService.validationError();
+      return;
+    }
+
+    this.apiService.createAppointment(this.currentAppointment).subscribe({
+      next: () => {
+        this.alertService.appointmentCreated();
+        this.closeModals();
+      },
+      error: (error) => {
+        this.alertService.appointmentError();
+        console.error('Error creating appointment:', error);
+      }
+    });
   }
 
   getPatientPhoto(patient: Patient): string {

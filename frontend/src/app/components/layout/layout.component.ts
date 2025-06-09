@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AlertComponent } from '../alert/alert.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AlertComponent],
   template: `
     <div class="layout">
       <aside class="sidebar">
@@ -84,6 +85,7 @@ import { AuthService } from '../../services/auth.service';
         <router-outlet></router-outlet>
       </main>
     </div>
+    <app-alert></app-alert>
   `,
   styleUrl: './layout.component.css'
 })

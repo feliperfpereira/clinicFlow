@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
+import { AlertComponent } from '../../components/alert/alert.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, AlertComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -21,7 +23,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -54,11 +57,12 @@ export class RegisterComponent {
       this.authService.register({ email, password }).subscribe({
         next: (response) => {
           this.isLoading = false;
+          this.alertService.registrationSuccess();
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error.error?.error || 'Erro ao criar conta. Tente novamente.';
+          this.alertService.error('Erro!', 'Erro ao criar conta. Verifique os dados e tente novamente.');
         }
       });
     }

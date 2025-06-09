@@ -433,6 +433,10 @@
   max-width: 400px;
 }
 
+.modal.large {
+  max-width: 600px;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -490,6 +494,40 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-select:disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -513,17 +551,18 @@
 }
 
 .save-button {
-  padding: 12px 20px;
+  padding: 12px 24px;
   border: none;
-  background-color: #3b82f6;
+  background-color: #111827;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
+  min-width: 100px;
 }
 
 .save-button:hover {
-  background-color: #2563eb;
+  background-color: #1f2937;
 }
 
 .delete-button {

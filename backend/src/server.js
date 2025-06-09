@@ -247,6 +247,34 @@ app.get('/api/auth/verify', async (req, res) => {
   }
 });
 
+// Refresh token endpoint
+app.post('/api/auth/refresh', async (req, res) => {
+  try {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      return res.status(400).json({ error: 'Refresh token is required' });
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token
+    });
+
+    if (error) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    res.json({
+      message: 'Token refreshed successfully',
+      session: data.session,
+      user: data.user
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Middleware to verify authentication
 const authenticateUser = async (req, res, next) => {
   try {
@@ -331,10 +359,10 @@ app.get('/api/patients/:id', authenticateUser, async (req, res) => {
 
 app.post('/api/patients', authenticateUser, async (req, res) => {
   try {
-    const { name, email, phone, birth_date } = req.body;
+    const { name, email, phone, birth_date, address, observations } = req.body;
 
-    if (!name || !email || !phone) {
-      return res.status(400).json({ error: 'Name, email, and phone are required' });
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'Name and phone are required' });
     }
 
     const { data, error } = await supabase
@@ -343,7 +371,9 @@ app.post('/api/patients', authenticateUser, async (req, res) => {
         name,
         email,
         phone,
-        birth_date
+        birth_date,
+        address,
+        observations
       })
       .select()
       .single();
@@ -365,20 +395,24 @@ app.post('/api/patients', authenticateUser, async (req, res) => {
 app.put('/api/patients/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, birth_date } = req.body;
+    const { name, email, phone, birth_date, address, observations } = req.body;
 
-    if (!name || !email || !phone) {
-      return res.status(400).json({ error: 'Name, email, and phone are required' });
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'Name and phone are required' });
     }
+
+    const updateData = {
+      name,
+      email,
+      phone,
+      birth_date,
+      address,
+      observations
+    };
 
     const { data, error } = await supabase
       .from('patients')
-      .update({
-        name,
-        email,
-        phone,
-        birth_date
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
